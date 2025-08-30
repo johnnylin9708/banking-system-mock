@@ -4,11 +4,12 @@ import { logger } from '../app';
 
 class BankingService {
   private accounts: Map<string, Account> = new Map();
+  private transactions: TransactionLog[] = [];
 
   createAccount(name: string, balance: number): Account {
     if (balance < 0) throw new Error('Initial balance cannot be negative');
     const id = uuidv4();
-    const account: Account = { id, name, balance, transactions: [] };
+    const account: Account = { id, name, balance };
     this.accounts.set(id, account);
     return account;
   }
@@ -42,7 +43,7 @@ class BankingService {
         type: 'deposit',
         timestamp: this.formatTimestamp(new Date()),
       };
-      account.transactions.push(log);
+      this.transactions.push(log);
       logger.info({
         event: 'deposit',
         accountId: id,
@@ -72,7 +73,7 @@ class BankingService {
         type: 'withdraw',
         timestamp: this.formatTimestamp(new Date()),
       };
-      account.transactions.push(log);
+      this.transactions.push(log);
       logger.info({
         event: 'withdraw',
         accountId: id,
@@ -109,8 +110,7 @@ class BankingService {
         type: 'transfer',
         timestamp: this.formatTimestamp(new Date()),
       };
-      from.transactions.push(log);
-      to.transactions.push(log);
+      this.transactions.push(log);
       logger.info({
         event: 'transfer',
         fromAccountId: fromId,
@@ -126,9 +126,10 @@ class BankingService {
   }
 
   getTransactionLogs(id: string): TransactionLog[] {
-    const account = this.accounts.get(id);
-    if (!account) throw new Error('Account not found');
-    return account.transactions;
+    if (!this.accounts.has(id)) throw new Error('Account not found');
+    return this.transactions.filter(
+      t => t.fromAccountId === id || t.toAccountId === id
+    );
   }
 
   getAllAccounts(): Account[] {

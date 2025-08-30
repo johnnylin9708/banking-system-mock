@@ -26,108 +26,6 @@ function allowOnlyFields(allowed: string[]) {
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     Account:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         name:
- *           type: string
- *         balance:
- *           type: number
- *         transactions:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/TransactionLog'
- *     TransactionLog:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         type:
- *           type: string
- *         amount:
- *           type: number
- *         timestamp:
- *           type: string
- *         fromAccountId:
- *           type: string
- *         toAccountId:
- *           type: string
- *         from:
- *           type: string
- *         to:
- *           type: string
- *     ApiResponseAccount:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *         data:
- *           $ref: '#/components/schemas/Account'
- *         error:
- *           type: string
- *           nullable: true
- *         message:
- *           type: string
- *     ApiResponseAccountArray:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *         data:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Account'
- *         error:
- *           type: string
- *           nullable: true
- *         message:
- *           type: string
- *     ApiResponseTransactionLog:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *         data:
- *           $ref: '#/components/schemas/TransactionLog'
- *         error:
- *           type: string
- *           nullable: true
- *         message:
- *           type: string
- *     ApiResponseTransactionLogArray:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *         data:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/TransactionLog'
- *         error:
- *           type: string
- *           nullable: true
- *         message:
- *           type: string
- *     ApiErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *         data:
- *           type: string
- *           nullable: true
- *         error:
- *           type: string
- *         message:
- *           type: string
- */
-
-/**
- * @swagger
  * /accounts:
  *   post:
  *     summary: Create a new account
@@ -150,23 +48,18 @@ function allowOnlyFields(allowed: string[]) {
  *         description: Account created
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseAccount'
  *             example:
  *               success: true
  *               data:
  *                 id: "acc123"
  *                 name: "Alice"
  *                 balance: 100
- *                 transactions: []
  *               error: null
  *               message: "Account created"
  *       400:
  *         description: Invalid input
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -176,8 +69,6 @@ function allowOnlyFields(allowed: string[]) {
  *         description: Conflict
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -238,23 +129,18 @@ router.post(
  *         description: Account found
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseAccount'
  *             example:
  *               success: true
  *               data:
  *                 id: "acc123"
  *                 name: "Alice"
  *                 balance: 100
- *                 transactions: []
  *               error: null
  *               message: "Account found"
  *       404:
  *         description: Account not found
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -311,8 +197,6 @@ router.get(
  *         description: Deposit successful
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseTransactionLog'
  *             example:
  *               success: true
  *               data:
@@ -328,8 +212,6 @@ router.get(
  *         description: Invalid input
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -391,8 +273,6 @@ router.post(
  *         description: Withdraw successful
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseTransactionLog'
  *             example:
  *               success: true
  *               data:
@@ -408,8 +288,6 @@ router.post(
  *         description: Invalid input
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -469,8 +347,6 @@ router.post(
  *         description: Transfer successful
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseTransactionLog'
  *             example:
  *               success: true
  *               data:
@@ -486,8 +362,6 @@ router.post(
  *         description: Invalid input
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -540,8 +414,6 @@ router.post(
  *         description: Transaction logs
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseTransactionLogArray'
  *             example:
  *               success: true
  *               data:
@@ -559,8 +431,6 @@ router.post(
  *         description: Account not found
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiErrorResponse'
  *             example:
  *               success: false
  *               data: null
@@ -605,19 +475,15 @@ router.get(
  *         description: List of all accounts
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ApiResponseAccountArray'
  *             example:
  *               success: true
  *               data:
  *                 - id: "acc123"
  *                   name: "Alice"
  *                   balance: 100
- *                   transactions: []
  *                 - id: "acc456"
  *                   name: "Bob"
  *                   balance: 200
- *                   transactions: []
  *               error: null
  *               message: "All accounts fetched"
  */
