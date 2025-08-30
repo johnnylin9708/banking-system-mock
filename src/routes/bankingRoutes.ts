@@ -235,6 +235,16 @@ router.post(
         message: 'Deposit successful'
       });
     } catch (e: any) {
+      
+      if (e.message === 'Account not found') {
+        return res.status(404).json({
+          success: false,
+          data: null,
+          error: e.message,
+          message: 'Deposit failed'
+        });
+      }
+
       res.status(400).json({
         success: false,
         data: null,
@@ -311,6 +321,16 @@ router.post(
         message: 'Withdraw successful'
       });
     } catch (e: any) {
+
+      if (e.message === 'Account not found') {
+        return res.status(404).json({
+          success: false,
+          data: null,
+          error: e.message,
+          message: 'Withdraw failed'
+        });
+      }
+
       res.status(400).json({
         success: false,
         data: null,
