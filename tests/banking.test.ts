@@ -128,4 +128,14 @@ describe('Banking API', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error).toMatch(/Account not found/);
   });
+
+  it('should return 500 for unexpected server error', async () => {
+    const res = await request(app)
+      .get('/api/simulate-error')
+      .set(authHeader);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBe('Internal Server Error');
+    expect(res.body.message).toMatch(/Simulated server error/);
+  });
 });

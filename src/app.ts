@@ -90,5 +90,26 @@ app.use('/api', (req, res, next) => {
   }
 }, bankingRoutes);
 
+// 404 handler for unknown routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    data: null,
+    error: 'Not Found',
+    message: 'The requested resource was not found'
+  });
+});
+
+// 500 handler for unexpected errors
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  logger.error({ error: err.message, stack: err.stack });
+  res.status(500).json({
+    success: false,
+    data: null,
+    error: 'Internal Server Error',
+    message: err.message || 'Unexpected error'
+  });
+});
+
 
 export default app;

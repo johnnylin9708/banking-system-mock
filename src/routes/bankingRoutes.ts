@@ -4,11 +4,20 @@ import { body, param, validationResult } from 'express-validator';
 
 const router = express.Router();
 
+router.get('/simulate-error', (req, res) => {
+  throw new Error('Simulated server error');
+});
 // Centralized error handler
 function handleValidationErrors(req: Request, res: Response, next: NextFunction) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ 
+      success: false,
+      data: null,
+      error: "Invalid input",
+      message: "Validation failed",
+      details: errors.array()
+    });
   }
   next();
 }
@@ -77,8 +86,8 @@ function allowOnlyFields(allowed: string[]) {
  */
 router.post(
   '/accounts',
-  body('name').isString().notEmpty(),
-  body('balance').isNumeric().isFloat({ min: 0 }),
+  body('name').isString().bail().notEmpty(),
+  body('balance').isNumeric().bail().isFloat({ min: 0 }),
   handleValidationErrors,
   allowOnlyFields(['name', 'balance']),
   (req: Request, res: Response) => {
@@ -149,8 +158,7 @@ router.post(
  */
 router.get(
   '/accounts/:id',
-  param('id').isString().notEmpty(),
-  handleValidationErrors,
+  param('id'),
   (req: Request, res: Response) => {
     const id = req.params?.id ?? '';
     const account = bankingService.getAccount(id);
@@ -221,7 +229,7 @@ router.get(
 router.post(
   '/accounts/:id/deposit',
   param('id').isString().notEmpty(),
-  body('amount').isNumeric().isFloat({ gt: 0 }),
+  body('amount').isNumeric().bail().isFloat({ gt: 0 }),
   handleValidationErrors,
   allowOnlyFields(['amount']),
   (req: Request, res: Response) => {
@@ -307,7 +315,7 @@ router.post(
 router.post(
   '/accounts/:id/withdraw',
   param('id').isString().notEmpty(),
-  body('amount').isNumeric().isFloat({ gt: 0 }),
+  body('amount').isNumeric().bail().isFloat({ gt: 0 }),
   handleValidationErrors,
   allowOnlyFields(['amount']),
   (req: Request, res: Response) => {
@@ -390,9 +398,9 @@ router.post(
  */
 router.post(
   '/accounts/transfer',
-  body('fromId').isString().notEmpty(),
-  body('toId').isString().notEmpty(),
-  body('amount').isNumeric().isFloat({ gt: 0 }),
+  body('fromId').isString().bail().notEmpty(),
+  body('toId').isString().bail().notEmpty(),
+  body('amount').isNumeric().bail().isFloat({ gt: 0 }),
   handleValidationErrors,
   allowOnlyFields(['fromId', 'toId', 'amount']),
   (req: Request, res: Response) => {
@@ -459,8 +467,7 @@ router.post(
  */
 router.get(
   '/accounts/:id/transactions',
-  param('id').isString().notEmpty(),
-  handleValidationErrors,
+  param('id'),
   (req: Request, res: Response) => {
     const id = req.params?.id ?? '';
     try {
