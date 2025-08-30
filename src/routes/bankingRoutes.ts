@@ -4,9 +4,6 @@ import { body, param, validationResult } from 'express-validator';
 
 const router = express.Router();
 
-router.get('/simulate-error', (req, res) => {
-  throw new Error('Simulated server error');
-});
 // Centralized error handler
 function handleValidationErrors(req: Request, res: Response, next: NextFunction) {
   const errors = validationResult(req);
@@ -27,7 +24,11 @@ function allowOnlyFields(allowed: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const extra = Object.keys(req.body).filter(k => !allowed.includes(k));
     if (extra.length > 0) {
-      return res.status(400).json({ error: `Unexpected fields: ${extra.join(', ')}` });
+      return res.status(400).json({ 
+        success: false,
+        data: null,
+        error: `Unexpected fields: ${extra.join(', ')}` 
+      });
     }
     next();
   };
@@ -521,6 +522,11 @@ router.get('/accounts', (req: Request, res: Response) => {
     error: null,
     message: 'All accounts fetched'
   });
+});
+
+
+router.get('/simulate-error', (req, res) => {
+  throw new Error('Simulated server error');
 });
 
 export default router;

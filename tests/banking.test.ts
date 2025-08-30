@@ -8,6 +8,18 @@ const testToken = jwt.sign({ userId: 'test-user' }, TEST_JWT_SECRET, { expiresIn
 const authHeader = { Authorization: `Bearer ${testToken}` };
 
 describe('Banking API', () => {
+  // unit tests
+  it('should return undefined for non-existent account', () => {
+    const result = require('../src/services/BankingService').bankingService.getAccount('not-exist');
+    expect(result).toBeUndefined();
+  });
+
+  it('should return false when account does not exist', () => {
+    const result = require('../src/services/BankingService').bankingService.accountExists('not-exist');
+    expect(result).toBe(false);
+  });
+
+  // integration tests for banking operations
   let accountA: any, accountB: any;
 
   it('should create an account', async () => {
@@ -20,6 +32,35 @@ describe('Banking API', () => {
     expect(res.body.data.name).toBe('Alice');
     expect(res.body.data.balance).toBe(100);
     accountA = res.body.data;
+  });
+
+  it('should reject request with extra fields', async () => {
+    const res = await request(app)
+      .post('/api/accounts')
+      .set(authHeader)
+      .send({ name: 'Extra', balance: 100, foo: 'bar' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/Unexpected fields/);
+  });
+
+  it('should return validation error details', async () => {
+    const res = await request(app)
+      .post('/api/accounts')
+      .set(authHeader)
+      .send({ balance: 100 }); // missing name
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.details).toBeDefined();
+  });
+
+  it('should not allow creating account with negative balance', async () => {
+    const res = await request(app)
+      .post('/api/accounts')
+      .set(authHeader)
+      .send({ name: 'Negative', balance: -100 });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
   });
 
   it('should deposit money', async () => {
@@ -68,6 +109,16 @@ describe('Banking API', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.amount).toBe(20);
+  });
+
+  it('should not allow transfer to self', async () => {
+    const res = await request(app)
+      .post('/api/accounts/transfer')
+      .set(authHeader)
+      .send({ fromId: accountA.id, toId: accountA.id, amount: 10 });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/Cannot transfer to the same account/);
   });
 
   it('should log transactions', async () => {
@@ -137,5 +188,14 @@ describe('Banking API', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error).toBe('Internal Server Error');
     expect(res.body.message).toMatch(/Simulated server error/);
+  });
+
+  it('should return 404 for unknown route', async () => {
+    const res = await request(app)
+      .get('/api/unknown-route')
+      .set(authHeader);
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toBe('Not Found');
   });
 });

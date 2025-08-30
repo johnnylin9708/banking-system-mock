@@ -88,15 +88,17 @@ class BankingService {
 
 
   transfer(fromId: string, toId: string, amount: number): TransactionLog {
-    // 避免死鎖，鎖定順序固定
+    if (fromId === toId) throw new Error('Cannot transfer to the same account');
+    if (amount <= 0) throw new Error('Transfer amount must be positive');
+
+    // avoid deadlock by locking in consistent order
     const [first, second] = [fromId, toId].sort();
     this.acquireLock(first);
     this.acquireLock(second);
     try {
-      if (amount <= 0) throw new Error('Transfer amount must be positive');
-      if (fromId === toId) throw new Error('Cannot transfer to the same account');
       const from = this.accounts.get(fromId);
       const to = this.accounts.get(toId);
+
       if (!from || !to) throw new Error('Account not found');
       if (from.balance < amount) throw new Error('Insufficient funds');
       // Atomic operation
