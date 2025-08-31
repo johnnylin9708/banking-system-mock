@@ -4,25 +4,25 @@ A Node.js + TypeScript RESTful banking system with in-memory storage, JWT authen
 
 ---
 
-## 專案架構
+## Project Structure
 
 ```
 bankingSystemMock/
 ├── src/
-│   ├── app.ts                # Express app 與中介層
-│   ├── server.ts             # 啟動 server
+│   ├── app.ts                # Express app and middleware
+│   ├── server.ts             # Server entry point
 │   ├── models/
-│   │   └── Account.ts        # 型別定義
+│   │   └── Account.ts        # Type definitions
 │   ├── routes/
-│   │   └── bankingRoutes.ts  # 所有 API 路由
+│   │   └── bankingRoutes.ts  # All API routes
 │   └── services/
-│       └── BankingService.ts # 商業邏輯 (原子操作)
+│       └── BankingService.ts # Business logic (atomic operations)
 ├── tests/
-│   └── banking.test.ts       # Jest 單元與整合測試
+│   └── banking.test.ts       # Jest unit and integration tests
 ├── postman/
 │   └── Banking System Mock API.postman_collection.json # Postman collection
-├── openapi.yaml              # OpenAPI 3.1 文件
-├── Dockerfile                # Docker 部署設定
+├── openapi.yaml              # OpenAPI 3.1 spec
+├── Dockerfile                # Docker build config
 ├── .dockerignore
 ├── package.json
 └── README.md
@@ -30,62 +30,62 @@ bankingSystemMock/
 
 ---
 
-## 功能說明
+## Features
 
-- **帳戶管理**
-  - 建立帳戶（不可重複名稱，餘額不可為負）
-  - 查詢所有帳戶
-  - 依 ID 查詢帳戶
+- **Account Management**
+  - Create account (unique name, non-negative balance)
+  - List all accounts
+  - Get account by ID
 
-- **交易操作**
-  - 存款（不可負數）
-  - 提款（餘額不可為負）
-  - 轉帳（原子操作，不能自轉，餘額不可為負）
+- **Transactions**
+  - Deposit (positive amount only)
+  - Withdraw (cannot overdraw)
+  - Transfer (atomic, cannot transfer to self, cannot overdraw)
 
-- **交易紀錄**
-  - 查詢單一帳戶所有交易紀錄
-  - 查詢所有交易紀錄
+- **Transaction Logs**
+  - Get all transactions for an account
+  - Get all transactions
 
-- **API 文件**
-  - [Swagger UI](http://localhost:9999/docs)（自動帶 JWT 權杖）
+- **API Documentation**
+  - [Swagger UI](http://localhost:9999/docs) (JWT support)
 
-- **驗證與安全**
-  - JWT 驗證（所有 `/api` 路徑皆需 Bearer Token）
-  - Helmet, rate-limit, 統一錯誤格式
+- **Security**
+  - JWT authentication (all `/api` routes require Bearer Token)
+  - Helmet, rate-limit, unified error format
 
-- **測試**
-  - Jest 單元與整合測試，覆蓋所有 edge case
+- **Testing**
+  - Jest unit and integration tests, covers all edge cases
 
-- **Docker 支援**
-  - 一鍵 build/run，無需本地安裝 Node/npm
+- **Docker Support**
+  - One-command build/run, no need for local Node/npm
 
 ---
 
-## 快速開始
+## Getting Started
 
-### 1. 安裝依賴
+### 1. Install dependencies
 
 ```sh
 npm install
 ```
 
-### 2. 設定環境變數
+### 2. Set environment variables
 
-建立 `.env` 檔案（或直接用環境變數）：
+Create a `.env` file (or use environment variables):
 
 ```
 JWT_SECRET=6b2e1f9c-8a3d-4d7e-9c2a-7f1b2e3c4d5e
 ```
 
-> **備註：本專案為測試用途，JWT_SECRET 僅為範例值。正式專案會放在雲端部署平台的環境變數或是Secret Manager裡面管理密鑰**
+> **Note: This secret is for testing/demo only. In production, use a secure secret managed by your cloud platform or a Secret Manager.**
 
-### 3. 啟動開發伺服器
+### 3. Start development server
 
 ```sh
 npm run dev
 ```
 
-### 4. 執行測試
+### 4. Run tests
 
 ```sh
 npm test
@@ -94,7 +94,7 @@ npm run test:coverage
 
 ---
 
-## Docker 部署
+## Docker Deployment
 
 ### Build & Run
 
@@ -102,9 +102,9 @@ npm run test:coverage
 docker build -t banking-system-mock .
 docker run -p 9999:9999 --env JWT_SECRET=6b2e1f9c-8a3d-4d7e-9c2a-7f1b2e3c4d5e banking-system-mock
 ```
-> **備註：本專案為測試用途，JWT_SECRET 僅為範例值。正式專案會放在雲端部署平台的環境變數或是Secret Manager裡面管理密鑰**
+> **Note: This secret is for testing/demo only. In production, use environment variables or a Secret Manager.**
 
-### 或用 docker-compose
+### Or use docker-compose
 
 ```yaml
 version: '3'
@@ -123,35 +123,65 @@ docker-compose up --build
 
 ---
 
-## API 文件
+## API Documentation
 
 - Swagger UI: [http://localhost:9999/docs](http://localhost:9999/docs)
 - OpenAPI YAML: [`openapi.yaml`](openapi.yaml)
 
 ---
 
-## Postman 測試
+## API Usage & Limitations
 
-1. 匯入 `postman/Banking System Mock API.postman_collection.json`
-2. 設定 `baseUrl` 變數為 `http://localhost:9999`
-3. 設定 Bearer Token（預設 collection 已有測試用 token）
+### Authentication & Security
+- **All `/api` routes require Bearer Token (JWT)**. Use `Authorization: Bearer <token>` in the header.
+- Invalid or missing JWT returns 401 Unauthorized.
+- The default JWT_SECRET is for testing only. Always use a secure secret in production.
+
+### Rate Limiting
+- **Max 100 requests per minute** (shared across all APIs). Exceeding this returns 429 Too Many Requests.
+- See `openapi.yaml` and Swagger UI for 429 error examples.
+
+### Input Validation
+- All amounts must be positive; account balances cannot be negative.
+- Account names must be unique.
+- Transfers cannot be to self (`fromId ≠ toId`), and source account must have sufficient balance.
+- Request body only allows specified fields; extra fields will be rejected.
+
+### Response Format
+- All API responses follow  
+  `{ success, data, error, message }`
+- On failure, `success: false`, `error` contains the error message, and `data` is null.
+
+### Data & Transaction Limitations
+- All accounts and transactions are stored in memory; **data is lost on server restart**.
+- No data persistence or multi-threaded deployment.
+- No multi-currency, advanced permissions, or pagination (can be extended if needed).
 
 ---
 
-## 主要 API 範例
+## Postman Testing
 
-- `POST /api/accounts` 建立帳戶
-- `GET /api/accounts` 查詢所有帳戶
-- `GET /api/accounts/:id` 查詢單一帳戶
-- `POST /api/accounts/:id/deposit` 存款
-- `POST /api/accounts/:id/withdraw` 提款
-- `POST /api/accounts/transfer` 轉帳
-- `GET /api/accounts/:id/transactions` 查詢帳戶交易紀錄
-- `GET /api/transactions` 查詢所有交易紀錄
+1. Import `postman/Banking System Mock API.postman_collection.json`
+2. Set the `baseUrl` variable to `http://localhost:9999`
+3. Set the Bearer Token (the collection includes a demo token)
 
 ---
 
-## 注意事項
+## Main API Endpoints
 
-- 所有資料皆為 in-memory，重啟即清空。
-- 所有 API 回傳格式皆為 `{ success, data, error, message }`
+- `POST /api/accounts` Create account
+- `GET /api/accounts` List all accounts
+- `GET /api/accounts/:id` Get account by ID
+- `POST /api/accounts/:id/deposit` Deposit
+- `POST /api/accounts/:id/withdraw` Withdraw
+- `POST /api/accounts/transfer` Transfer
+- `GET /api/accounts/:id/transactions` Get account transaction logs
+- `GET /api/transactions` Get all transactions
+
+---
+
+## Notes
+
+- All data is in-memory and will be cleared on server restart.
+- All API responses follow `{ success, data, error, message }`
+```# Banking System Mock API
