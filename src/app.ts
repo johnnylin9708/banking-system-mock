@@ -26,6 +26,9 @@ export const logger = winston.createLogger({
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
+    servers: [
+      { url: '/api' }
+    ],
     info: {
       title: 'Banking System API',
       version: '1.0.0',
@@ -78,7 +81,12 @@ app.use(rateLimit({
 app.use('/api', (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized: Missing or invalid token' });
+    return res.status(401).json({ 
+      success: false,
+      data: null,
+      error: 'Missing token',
+      message: 'Unauthorized: Missing token'
+    });
   }
   const token = authHeader.split(' ')[1];
   try {
@@ -86,7 +94,12 @@ app.use('/api', (req, res, next) => {
     (req as any).user = payload;
     next();
   } catch (err) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    return res.status(401).json({ 
+      success: false,
+      data: null,
+      error: 'Invalid token',
+      message: 'Unauthorized: Invalid token'
+    });
   }
 }, bankingRoutes);
 

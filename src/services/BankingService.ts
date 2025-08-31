@@ -138,6 +138,10 @@ class BankingService {
     return Array.from(this.accounts.values());
   }
 
+  getAllTransactions(): TransactionLog[] {
+    return this.transactions;
+  }
+
   // Helper: format timestamp as yyyy/mm/dd HH:MM:SS
   private formatTimestamp(date: Date): string {
     const pad = (n: number) => n.toString().padStart(2, '0');

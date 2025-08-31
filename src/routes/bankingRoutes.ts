@@ -524,6 +524,42 @@ router.get('/accounts', (req: Request, res: Response) => {
   });
 });
 
+/**
+ * @swagger
+ * /transactions:
+ *   get:
+ *     summary: Get all transactions
+ *     description: |
+ *       Retrieve a list of all transaction logs (deposits, withdrawals, transfers) in the system. Returns an array of transaction log objects.
+ *     tags: [Transactions]
+ *     responses:
+ *       200:
+ *         description: List of all transactions
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: true
+ *               data:
+ *                 - id: "log123"
+ *                   type: "deposit"
+ *                   amount: 50
+ *                   timestamp: "2025/08/31 12:00:00"
+ *                 - id: "log124"
+ *                   type: "withdraw"
+ *                   amount: 30
+ *                   timestamp: "2025/08/31 12:10:00"
+ *               error: null
+ *               message: "All transactions fetched"
+ */
+router.get('/transactions', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: bankingService.getAllTransactions(),
+    error: null,
+    message: 'All transactions fetched'
+  });
+});
+
 
 router.get('/simulate-error', (req, res) => {
   throw new Error('Simulated server error');
