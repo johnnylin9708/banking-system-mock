@@ -47,8 +47,16 @@ app.use(express.json());
 // Security middleware
 app.use(helmet());
 app.use(rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      data: null,
+      error: 'Too Many Requests',
+      message: 'You have exceeded the request limit. Please try again later.'
+    });
+  }
 }));
 
 // JWT middleware for /api

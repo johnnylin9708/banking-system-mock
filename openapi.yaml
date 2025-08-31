@@ -15,6 +15,15 @@ components:
             data: null
             error: "Unauthorized"
             message: "Missing or invalid token"
+    TooManyRequestsError:
+      description: Too Many Requests - Rate limit exceeded
+      content:
+        application/json:
+          example:
+            success: false
+            data: null
+            error: "Too Many Requests"
+            message: "You have exceeded the request limit. Please try again later."
   securitySchemes:
     bearerAuth:
       type: http
@@ -71,6 +80,8 @@ paths:
                 data: null
                 error: "Account already exists"
                 message: "Duplicate account name"
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
     get:
       summary: Get all accounts
       tags: [Accounts]
@@ -92,6 +103,8 @@ paths:
                 message: "All accounts fetched"
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
   /accounts/{id}:
     get:
       summary: Get account by ID
@@ -126,6 +139,8 @@ paths:
                 data: null
                 error: "Account not found"
                 message: "No such account"
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
   /accounts/{id}/deposit:
     post:
       summary: Deposit money to an account
@@ -172,6 +187,8 @@ paths:
                 message: "Deposit failed"
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
   /accounts/{id}/withdraw:
     post:
       summary: Withdraw money from an account
@@ -218,6 +235,8 @@ paths:
                 message: "Withdraw failed"
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
   /accounts/transfer:
     post:
       summary: Transfer money between accounts
@@ -262,6 +281,8 @@ paths:
                 message: "Transfer failed"
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
   /accounts/{id}/transactions:
     get:
       summary: Get transaction logs for an account
@@ -301,6 +322,8 @@ paths:
                 data: null
                 error: "Account not found"
                 message: "Account not found"
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
   /transactions:
     get:
       summary: Get all transactions
@@ -325,3 +348,5 @@ paths:
                 message: "All transactions fetched"
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        429:
+          $ref: '#/components/responses/TooManyRequestsError'
