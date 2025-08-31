@@ -1,11 +1,12 @@
+// Load OpenAPI YAML
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import bankingRoutes from './routes/bankingRoutes';
-import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import jwt from 'jsonwebtoken';
 import winston from 'winston';
 
@@ -23,35 +24,8 @@ export const logger = winston.createLogger({
 });
 
 // Swagger UI and OpenAPI docs (should be public)
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    servers: [
-      { url: '/api' }
-    ],
-    info: {
-      title: 'Banking System API',
-      version: '1.0.0',
-      description: 'API documentation for the Banking System',
-    },
-    components: {
-      securitySchemes: {
-        BearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          description: 'Enter JWT token in the format: Bearer <token>',
-        },
-      },
-    },
-    security: [
-      { BearerAuth: [] }
-    ],
-  },
-  apis: ['dist/routes/*.js'],
-};
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const swaggerDocument = YAML.load('./openapi.yaml');
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Logger middleware
 app.use((req, res, next) => {

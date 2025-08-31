@@ -1,0 +1,327 @@
+openapi: 3.1.0
+info:
+  title: Banking System API
+  version: 1.0.0
+servers:
+  - url: /api
+components:
+  responses:
+    UnauthorizedError:
+      description: Unauthorized - Missing or invalid JWT token
+      content:
+        application/json:
+          example:
+            success: false
+            data: null
+            error: "Unauthorized"
+            message: "Missing or invalid token"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /accounts:
+    post:
+      summary: Create a new account
+      tags: [Accounts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                balance:
+                  type: number
+      responses:
+        201:
+          description: Account created
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  id: "acc123"
+                  name: "Alice"
+                  balance: 100
+                error: null
+                message: "Account created"
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Invalid input"
+                message: "Failed to create account"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Account already exists"
+                message: "Duplicate account name"
+    get:
+      summary: Get all accounts
+      tags: [Accounts]
+      responses:
+        200:
+          description: List of all accounts
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  - id: "acc123"
+                    name: "Alice"
+                    balance: 100
+                  - id: "acc456"
+                    name: "Bob"
+                    balance: 200
+                error: null
+                message: "All accounts fetched"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /accounts/{id}:
+    get:
+      summary: Get account by ID
+      tags: [Accounts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Account found
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  id: "acc123"
+                  name: "Alice"
+                  balance: 100
+                error: null
+                message: "Account found"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Account not found"
+                message: "No such account"
+  /accounts/{id}/deposit:
+    post:
+      summary: Deposit money to an account
+      tags: [Accounts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+      responses:
+        200:
+          description: Deposit successful
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  id: "log123"
+                  toAccountId: "acc123"
+                  to: "Alice"
+                  amount: 50
+                  type: "deposit"
+                  timestamp: "2025/08/31 12:00:00"
+                error: null
+                message: "Deposit successful"
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Invalid input"
+                message: "Deposit failed"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /accounts/{id}/withdraw:
+    post:
+      summary: Withdraw money from an account
+      tags: [Accounts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+      responses:
+        200:
+          description: Withdraw successful
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  id: "log124"
+                  fromAccountId: "acc123"
+                  from: "Alice"
+                  amount: 30
+                  type: "withdraw"
+                  timestamp: "2025/08/31 12:10:00"
+                error: null
+                message: "Withdraw successful"
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Invalid input"
+                message: "Withdraw failed"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /accounts/transfer:
+    post:
+      summary: Transfer money between accounts
+      tags: [Accounts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromId:
+                  type: string
+                toId:
+                  type: string
+                amount:
+                  type: number
+      responses:
+        200:
+          description: Transfer successful
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  id: "log125"
+                  fromAccountId: "acc123"
+                  toAccountId: "acc456"
+                  amount: 20
+                  type: "transfer"
+                  timestamp: "2025/08/31 12:20:00"
+                error: null
+                message: "Transfer successful"
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Invalid input"
+                message: "Transfer failed"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /accounts/{id}/transactions:
+    get:
+      summary: Get transaction logs for an account
+      tags: [Accounts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Transaction logs
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  - id: "log123"
+                    type: "deposit"
+                    amount: 50
+                    timestamp: "2025/08/31 12:00:00"
+                  - id: "log124"
+                    type: "withdraw"
+                    amount: 30
+                    timestamp: "2025/08/31 12:10:00"
+                error: null
+                message: "Transaction logs fetched"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              example:
+                success: false
+                data: null
+                error: "Account not found"
+                message: "Account not found"
+  /transactions:
+    get:
+      summary: Get all transactions
+      tags: [Transactions]
+      responses:
+        200:
+          description: List of all transactions
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  - id: "log123"
+                    type: "deposit"
+                    amount: 50
+                    timestamp: "2025/08/31 12:00:00"
+                  - id: "log124"
+                    type: "withdraw"
+                    amount: 30
+                    timestamp: "2025/08/31 12:10:00"
+                error: null
+                message: "All transactions fetched"
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
