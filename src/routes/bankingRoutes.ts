@@ -80,8 +80,6 @@ function allowOnlyFields(allowed: string[]) {
  *       400:
  *         description: Invalid input
  *         content:
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  *           application/json:
  *             example:
  *               success: false
