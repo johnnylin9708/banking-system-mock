@@ -84,8 +84,8 @@ app.use('/api', (req, res, next) => {
     return res.status(401).json({ 
       success: false,
       data: null,
-      error: 'Missing token',
-      message: 'Unauthorized: Missing token'
+      error: 'Unauthorized',
+      message: 'Missing token'
     });
   }
   const token = authHeader.split(' ')[1];
@@ -97,8 +97,8 @@ app.use('/api', (req, res, next) => {
     return res.status(401).json({ 
       success: false,
       data: null,
-      error: 'Invalid token',
-      message: 'Unauthorized: Invalid token'
+      error: 'Unauthorized',
+      message: 'Invalid token'
     });
   }
 }, bankingRoutes);

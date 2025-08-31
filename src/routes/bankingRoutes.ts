@@ -36,6 +36,17 @@ function allowOnlyFields(allowed: string[]) {
 
 /**
  * @swagger
+ * components:
+ *   responses:
+ *     UnauthorizedError:
+ *       description: Unauthorized - Missing or invalid JWT token
+ *       content:
+ *         application/json:
+ *           example:
+ *             success: false
+ *             data: null
+ *             error: 'Unauthorized'
+ *             message: 'Missing or invalid token'
  * /accounts:
  *   post:
  *     summary: Create a new account
@@ -69,12 +80,16 @@ function allowOnlyFields(allowed: string[]) {
  *       400:
  *         description: Invalid input
  *         content:
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *           application/json:
  *             example:
  *               success: false
  *               data: null
  *               error: "Invalid input"
  *               message: "Failed to create account"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       409:
  *         description: Conflict
  *         content:
@@ -147,6 +162,8 @@ router.post(
  *                 balance: 100
  *               error: null
  *               message: "Account found"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       404:
  *         description: Account not found
  *         content:
@@ -226,6 +243,8 @@ router.get(
  *               data: null
  *               error: "Invalid input"
  *               message: "Deposit failed"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
   '/accounts/:id/deposit',
@@ -312,6 +331,8 @@ router.post(
  *               data: null
  *               error: "Invalid input"
  *               message: "Withdraw failed"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
   '/accounts/:id/withdraw',
@@ -396,6 +417,8 @@ router.post(
  *               data: null
  *               error: "Invalid input"
  *               message: "Transfer failed"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
   '/accounts/transfer',
@@ -456,6 +479,8 @@ router.post(
  *                   timestamp: "2025/08/31 12:10:00"
  *               error: null
  *               message: "Transaction logs fetched"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       404:
  *         description: Account not found
  *         content:
@@ -514,6 +539,8 @@ router.get(
  *                   balance: 200
  *               error: null
  *               message: "All accounts fetched"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get('/accounts', (req: Request, res: Response) => {
   res.json({
@@ -550,6 +577,8 @@ router.get('/accounts', (req: Request, res: Response) => {
  *                   timestamp: "2025/08/31 12:10:00"
  *               error: null
  *               message: "All transactions fetched"
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get('/transactions', (req: Request, res: Response) => {
   res.json({
